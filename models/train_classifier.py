@@ -16,6 +16,12 @@ nltk.download('punkt')
 nltk.download('wordnet')
 
 def load_data(database_filepath):
+    '''
+    Load data from the given database
+
+    output:
+            Dataframe
+    '''
     # create connection to the database and read the data
     engine = create_engine(f'sqlite:///{database_filepath}')
     df = pd.read_sql('messages',engine) 
@@ -28,6 +34,12 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    '''
+    tokenize and lemmatize the given text
+
+    output:
+            List pf tokens
+    '''
     # tokenize messages
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
@@ -42,16 +54,28 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    Build the model pipeline
+
+    output:
+            Pipeline
+    '''
     # create the model pipeline
     pipeline = Pipeline([
     ('vect', CountVectorizer(tokenizer=tokenize)),
     ('tfidf', TfidfTransformer(smooth_idf=True)),
     ('clf', MultiOutputClassifier(RandomForestClassifier(n_estimators=10)))
     ])
+
     return pipeline
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    Evaluate the model and print the results
+    Method used for evaluation is a classification_report of every class
+
+    '''
     # get the results and convert them into dataframe to print evaluation
     results = model.predict(X_test)
     results_df = pd.DataFrame(results, columns = category_names)
@@ -64,6 +88,11 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    '''
+    Save the given model as pickle in the provided path
+
+    '''
+    
     pickle.dump(model, open(model_filepath, 'wb'))
 
 
