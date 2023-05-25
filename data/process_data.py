@@ -38,6 +38,9 @@ def clean_data(df):
     # drop duplicates
     df = df.drop_duplicates()
     
+    # drop rows with related column == 2 to make it only binary
+    df = df.drop(df[df.related == 2].index)
+    
     # conver id column to string type
     df.id = df.id.astype(str)
     
@@ -46,7 +49,7 @@ def clean_data(df):
 
 def save_data(df, database_filename):
     engine = create_engine(f'sqlite:///{database_filename}')
-    df.to_sql('messages', engine, index=False)  
+    df.to_sql('messages', engine, index=False, if_exists='replace')  
 
 
 def main():
