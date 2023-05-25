@@ -1,6 +1,6 @@
 import sys
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -24,6 +24,8 @@ def load_data(database_filepath):
     '''
     # create connection to the database and read the data
     engine = create_engine(f'sqlite:///{database_filepath}')
+    # with engine.connect() as conn: 
+    #     df = pd.read_sql_query(text("SELECT * FROM messages"), conn)
     df = pd.read_sql('messages',engine) 
     
     # split into X and y
@@ -67,7 +69,14 @@ def build_model():
     ('clf', MultiOutputClassifier(RandomForestClassifier(n_estimators=10)))
     ])
 
-    return pipeline
+    parameters = {
+    'tfidf__smooth_idf':[True, False],
+    'clf__estimator__n_estimators':[10,20,30]
+    }
+
+    cv = GridSearchCV(pipeline, param_grid=parameters)
+
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):

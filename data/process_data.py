@@ -3,12 +3,6 @@ import pandas as pd
 from sqlalchemy import create_engine 
 
 def load_data(messages_filepath, categories_filepath):
-    '''
-    Load messages and categories data from the given paths
-
-    output:
-            Combined dataframe 
-    '''
     # read messages and categories
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
@@ -20,12 +14,6 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
-    '''
-    Clean the given data to be suitable for proccessing
-
-    output:
-            Dataframe of the cleaned data
-    '''
     # split categories into different columns
     categories = df.categories.str.split( ';' , expand=True)
     
@@ -50,19 +38,13 @@ def clean_data(df):
     # drop duplicates
     df = df.drop_duplicates()
     
+    # conver id column to string type
+    df.id = df.id.astype(str)
+    
     return df
 
 
 def save_data(df, database_filename):
-    '''
-    Save the data in a database
-
-    returns dataframe of the aggregated data
-
-    input:
-            df: your dataframe
-            database_filename: path to the database
-    '''
     engine = create_engine(f'sqlite:///{database_filename}')
     df.to_sql('messages', engine, index=False)  
 
